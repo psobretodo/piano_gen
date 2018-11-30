@@ -1,0 +1,32 @@
+module PianoTopLevel(input clk_h, input [8:0] switch_val, output reg out_val, output reg en);
+
+reg [16:0] freq_counter;
+reg [8:0] val_freq;
+reg [9:0] address; 
+wire [9:0] lookup_out;
+wire freq_val_pwm;
+
+PianoLowLevel pll(clk_h, lookup_out, freq_val_pwm);
+dist_mem_gen_0 dmg(address, lookup_out);
+
+always@*
+begin
+    en = 1;
+
+    if(freq_val_pwm == 0)
+        out_val = 1'b0;
+    else
+        out_val = 1'bZ;
+    val_freq <= switch_val;
+end   
+
+
+always@(posedge clk_h)
+    if(freq_counter == val_freq)
+    begin
+        address = address + 1;
+        freq_counter = 1'b0;
+    end
+    else
+        freq_counter = freq_counter + 1;
+endmodule
